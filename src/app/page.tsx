@@ -1,65 +1,149 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Header from "@/components/Header";
+import AboutSection from "@/components/AboutSection";
+import CatsGallery from "@/components/CatsGallery";
+import AdoptionProcess from "@/components/AdoptionProcess";
+import DonateSection from "@/components/DonateSection";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setIsLoaded(true), 500);
+          return 100;
+        }
+        return prev + 1;
+      });
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const smoothScrollTo = (targetPosition: number, duration: number = 1000) => {
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime: number | null = null;
+
+    const easeInOutCubic = (t: number): number => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const animation = (currentTime: number) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      const easeProgress = easeInOutCubic(progress);
+
+      window.scrollTo(0, startPosition + distance * easeProgress);
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      smoothScrollTo(offsetPosition, 1000);
+    }
+  };
+
+  if (!showContent) {
+    return (
+      <div className="elegant-container">
+        {/* Top small logo */}
+        <span className="top-logo fade-in">
+          P A T I T A S&nbsp;&nbsp;&nbsp;F E L I C E S
+        </span>
+
+        {/* Center main logo with blur effect */}
+        <div className="center-logo fade-in-delay-1">
+          {/* Clear layer as base */}
+          <h1 className="main-title-clear">
+            PATITAS FELICES
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          {/* Blurred layer on top - moves like a wave */}
+          <span className="main-title-blurred" aria-hidden="true">
+            PATITAS FELICES
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Subtitle */}
+        <p className="subtitle fade-in-delay-2">
+          Refugio de Gatos
+        </p>
+
+        {/* Enter button */}
+        {isLoaded && (
+          <button
+            onClick={() => setShowContent(true)}
+            className="elegant-button fade-in"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            Entrar
+          </button>
+        )}
+
+        {/* Loading text */}
+        <span className="loading-text fade-in-delay-3">
+          {!isLoaded ? (
+            <>Loading...<span className="loading-percentage">{loadingProgress}%</span>completed</>
+          ) : (
+            "Bienvenido"
+          )}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <main>
+        {/* Hero Section */}
+        <section id="inicio" className="hero-section">
+          <div className="hero-overlay" />
+          <div className="hero-content">
+            <span className="hero-subtitle fade-in">Refugio de Gatos</span>
+            <h1 className="hero-title fade-in-delay-1">PATITAS FELICES</h1>
+            <p className="hero-description fade-in-delay-2">
+              Donde cada gato encuentra su hogar perfecto
+            </p>
+            <div className="hero-buttons fade-in-delay-3">
+              <a href="#gatos" onClick={(e) => scrollToSection(e, "gatos")} className="hero-btn-primary">Ver Gatos</a>
+              <a href="#adoptar" onClick={(e) => scrollToSection(e, "adoptar")} className="hero-btn-secondary">Adoptar</a>
+            </div>
+          </div>
+          <div className="hero-scroll">
+            <span>Scroll</span>
+            <div className="scroll-line" />
+          </div>
+        </section>
+
+        <AboutSection />
+        <CatsGallery />
+        <AdoptionProcess />
+        <DonateSection />
+        <ContactSection />
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }

@@ -1,0 +1,23 @@
+/* ============================================
+   FONDO CON DEGRADADO ELEGANTE BORGOÑA
+   ============================================
+
+   Para usar este fondo, reemplaza el contenido
+   de .elegant-container en globals.css
+   ============================================ */
+
+/* Main container */
+.elegant-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, var(--accent) 0%, #1a0a10 40%, #0a0a0a 70%);
+  position: relative;
+}
+
+/* Variable necesaria (ya deberia estar en :root) */
+:root {
+  --accent: #4a1525;
+}
